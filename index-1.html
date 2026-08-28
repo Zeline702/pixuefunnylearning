@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>品学学神</title>
+<style>
+:root{
+  --bamboo:#3fa34d; --bamboo-deep:#2c7a3f; --bamboo-light:#e7f5e9;
+  --ink:#2b2b2b; --panda:#1f1f1f; --paper:#fbf7ef; --card:#ffffff;
+  --flame:#ff7a2f; --flame-soft:#ffe3d1; --wrong:#e23b3b; --wrong-soft:#fde4e4;
+  --gold:#ffb23e; --sky:#8fd3ff; --line:#ece6d8; --muted:#8a8577;
+  --shadow:0 8px 24px rgba(60,50,30,.12);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  background:var(--paper); color:var(--ink);
+  display:flex; justify-content:center;
+}
+#app{width:100%;max-width:440px;background:var(--paper);position:relative;display:flex;flex-direction:column;min-height:100vh}
+.screen{display:none;flex-direction:column;animation:fade .3s ease}
+.screen.active{display:flex;min-height:100vh}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.scroll{padding:16px 16px 96px}
+.scroll.grow{flex:1;display:flex;flex-direction:column}
+.pad{padding:16px}
+
+/* Panda */
+.panda{position:relative;display:inline-block;width:120px;height:120px}
+.panda svg{width:100%;height:100%;overflow:visible}
+.panda.breathe{animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.panda.jump{animation:jump .5s ease}
+@keyframes jump{0%{transform:translateY(0)}30%{transform:translateY(-24px) scale(1.05)}60%{transform:translateY(0)}80%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+.panda.shake{animation:shakeit .5s ease}
+@keyframes shakeit{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+.speech{background:#fff;border:2px solid var(--line);border-radius:16px;padding:8px 14px;font-size:14px;font-weight:600;position:relative;box-shadow:var(--shadow);display:inline-block;max-width:260px}
+.speech:after{content:"";position:absolute;bottom:-9px;left:28px;width:14px;height:14px;background:#fff;border-right:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+
+/* Header brand */
+.brand-hero{text-align:center;padding:34px 20px 10px}
+.brand-hero h1{font-size:38px;margin:6px 0 2px;letter-spacing:4px;color:var(--bamboo-deep);font-weight:800}
+.brand-hero .slogan{color:var(--muted);font-size:15px;letter-spacing:1px}
+
+.btn{border:none;border-radius:18px;padding:16px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;transition:transform .1s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--bamboo);color:#fff;box-shadow:0 6px 0 var(--bamboo-deep)}
+.btn-primary:active{box-shadow:0 2px 0 var(--bamboo-deep);transform:translateY(3px)}
+.btn-flame{background:var(--flame);color:#fff;box-shadow:0 6px 0 #d85e18}
+.btn-flame:active{box-shadow:0 2px 0 #d85e18;transform:translateY(3px)}
+.btn-ghost{background:#fff;color:var(--ink);border:2px solid var(--line)}
+.btn-gold{background:var(--gold);color:#5a3d00;box-shadow:0 6px 0 #d68e1c}
+.btn:disabled{background:#d9d5c9;color:#fff;box-shadow:none;cursor:default}
+.btn-sm{padding:9px 14px;font-size:14px;border-radius:12px;width:auto}
+
+.card{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.row{display:flex;align-items:center;gap:12px}
+.between{justify-content:space-between}
+.pill{display:inline-flex;align-items:center;gap:5px;background:#fff;border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}
+.chip{background:var(--bamboo-light);color:var(--bamboo-deep);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+h2{font-size:20px;margin:4px 0 14px}
+.muted{color:var(--muted)}
+.big-num{font-size:26px;font-weight:800}
+
+/* progress */
+.bar{height:12px;background:#efeadd;border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--bamboo),#6fce7c);border-radius:999px;transition:width .5s}
+
+/* nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid var(--line);display:flex;padding:8px 4px calc(12px + env(safe-area-inset-bottom));z-index:20}
+.nav button{flex:1;background:none;border:none;font-size:11px;color:var(--muted);font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-weight:600}
+.nav button .ic{font-size:22px}
+.nav button.on{color:var(--bamboo-deep)}
+
+/* topbar */
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.topbar .back{background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink)}
+.topbar h3{margin:0;font-size:17px;flex:1}
+
+/* quiz */
+.opt{background:#fff;border:2.5px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:12px;font-size:16px;font-weight:600;cursor:pointer;display:flex;gap:12px;align-items:center;transition:.15s}
+.opt .lab{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:var(--bamboo-light);color:var(--bamboo-deep);display:flex;align-items:center;justify-content:center;font-weight:800}
+.opt.correct{border-color:var(--bamboo);background:var(--bamboo-light)}
+.opt.correct .lab{background:var(--bamboo);color:#fff}
+.opt.wrong{border-color:var(--wrong);background:var(--wrong-soft)}
+.opt.wrong .lab{background:var(--wrong);color:#fff}
+.opt.lock{pointer-events:none}
+
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(30,25,15,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.mask.show{display:flex}
+.modal{background:#fff;border-radius:24px;padding:22px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:var(--shadow);animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.modal h3{margin:0 0 12px;text-align:center}
+.modal-foot{position:sticky;bottom:-22px;background:#fff;padding:12px 0 2px;margin-top:4px;box-shadow:0 -8px 12px -8px rgba(0,0,0,.12)}
+input,textarea,select{width:100%;padding:12px;border:2px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;margin-bottom:12px;background:#fff}
+textarea{resize:vertical;min-height:64px}
+label.fld{font-weight:700;font-size:13px;display:block;margin-bottom:5px;color:var(--muted)}
+
+/* confetti */
+.confetti{position:fixed;top:-10px;width:10px;height:14px;z-index:60;pointer-events:none;border-radius:2px}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.9}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border-radius:18px;padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat .l{font-size:12px;color:var(--muted);font-weight:600}
+.stat .v{font-size:22px;font-weight:800;margin-top:3px}
+
+.item{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.badge{display:inline-flex;align-items:center;justify-content:center;flex-direction:column;width:72px;gap:4px;text-align:center}
+.badge .ring{width:56px;height:56px;border-radius:50%;background:var(--bamboo-light);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid var(--bamboo)}
+.badge.locked .ring{background:#f0ede3;border-color:var(--line);filter:grayscale(1);opacity:.5}
+.badge span{font-size:11px;font-weight:600;color:var(--muted)}
+.status-tag{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px}
+.status-tag.pending{background:var(--flame-soft);color:var(--flame)}
+.status-tag.claimed{background:var(--bamboo-light);color:var(--bamboo-deep)}
+.voucher{border:2px dashed var(--bamboo);border-radius:18px;padding:18px;text-align:center;background:var(--bamboo-light)}
+.voucher .code{font-family:ui-monospace,monospace;font-size:18px;font-weight:800;letter-spacing:1px;margin:8px 0;color:var(--bamboo-deep)}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--panda);color:#fff;padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;z-index:70;opacity:0;transition:.3s;white-space:nowrap}
+.toast.show{opacity:1;bottom:110px}
+.pointpop{position:fixed;color:var(--gold);font-weight:800;font-size:20px;z-index:65;pointer-events:none;animation:pfloat 1.1s ease forwards}
+@keyframes pfloat{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1;transform:translateY(-10px) scale(1.1)}100%{opacity:0;transform:translateY(-50px)}}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.tap{cursor:pointer}
+hr{border:none;border-top:1px solid var(--line);margin:14px 0}
+.dot-red{background:var(--wrong);color:#fff;border-radius:999px;font-size:11px;padding:1px 7px;font-weight:700;margin-left:6px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="mask" id="mask"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ PANDA SVG ============ */
+function panda(mood, size){
+  size = size||120;
+  // moods: idle, happy, cheer, sad, comfort, proud, gift, surprise, expect
+  const arms = {
+    happy:'<path d="M22 78 q-14 -6 -16 -22" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M98 78 q14 -6 16 -22" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/>',
+    cheer:'<path d="M24 74 q-12 -14 -8 -34" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M96 74 q12 -14 8 -34" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/>',
+    comfort:'<path d="M24 78 q-16 4 -18 -8" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M96 78 q16 4 18 -8" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/>',
+    idle:'<path d="M24 80 q-12 4 -14 -4" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M96 80 q12 4 14 -4" stroke="#1f1f1f" stroke-width="9" fill="none" stroke-linecap="round"/>',
+  };
+  const arm = arms[mood]|| (['cheer','proud'].includes(mood)?arms.cheer: mood==='comfort'||mood==='sad'?arms.comfort: mood==='happy'||mood==='gift'?arms.happy:arms.idle);
+  // eyes/mouth per mood
+  let mouth = '<path d="M52 66 q8 8 16 0" stroke="#1f1f1f" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  let eyeExtra='';
+  if(mood==='sad'||mood==='comfort'){mouth='<path d="M52 68 q8 -6 16 0" stroke="#1f1f1f" stroke-width="3" fill="none" stroke-linecap="round"/>';}
+  if(mood==='happy'||mood==='cheer'||mood==='proud'){mouth='<path d="M50 64 q10 12 20 0" stroke="#1f1f1f" stroke-width="3.5" fill="none" stroke-linecap="round"/>';}
+  if(mood==='surprise'){mouth='<ellipse cx="60" cy="68" rx="5" ry="6" fill="#1f1f1f"/>';}
+  if(mood==='expect'){mouth='<path d="M53 66 q7 5 14 0" stroke="#1f1f1f" stroke-width="3" fill="none" stroke-linecap="round"/>';}
+  const blush = (mood==='happy'||mood==='cheer'||mood==='proud'||mood==='gift')?'<ellipse cx="38" cy="60" rx="6" ry="4" fill="#ffb3b3" opacity=".7"/><ellipse cx="82" cy="60" rx="6" ry="4" fill="#ffb3b3" opacity=".7"/>':'';
+  const gift = mood==='gift'?'<g transform="translate(46 84)"><rect x="0" y="0" width="28" height="22" rx="3" fill="#ff7a2f"/><rect x="12" y="0" width="4" height="22" fill="#ffd28a"/><rect x="0" y="8" width="28" height="4" fill="#ffd28a"/></g>':'';
+  const flag = mood==='proud'?'<g transform="translate(90 20)"><rect x="0" y="0" width="3" height="30" fill="#7a5230"/><path d="M3 2 h22 l-6 7 l6 7 h-22 z" fill="#ff7a2f"/><text x="7" y="13" font-size="7" fill="#fff" font-weight="bold">神</text></g>':'';
+  const snow = mood==='snow'?'<text x="46" y="100" font-size="22">❄️</text>':'';
+  return `<div class="panda ${mood==='idle'?'breathe':''}"><svg viewBox="-6 0 132 130">
+    ${flag}
+    <!-- ears -->
+    <circle cx="30" cy="26" r="15" fill="#1f1f1f"/><circle cx="90" cy="26" r="15" fill="#1f1f1f"/>
+    <!-- hat -->
+    <path d="M30 22 L60 10 L90 22 L60 30 Z" fill="#2c7a3f"/><rect x="55" y="6" width="10" height="8" fill="#2c7a3f"/><circle cx="60" cy="6" r="3" fill="#ffb23e"/>
+    <!-- head -->
+    <circle cx="60" cy="52" r="34" fill="#fff" stroke="#e6e2d6" stroke-width="1.5"/>
+    <!-- eye patches -->
+    <ellipse cx="44" cy="50" rx="10" ry="13" fill="#1f1f1f" transform="rotate(-15 44 50)"/>
+    <ellipse cx="76" cy="50" rx="10" ry="13" fill="#1f1f1f" transform="rotate(15 76 50)"/>
+    <circle cx="45" cy="50" r="4.5" fill="#fff"/><circle cx="75" cy="50" r="4.5" fill="#fff"/>
+    ${mood==='proud'||mood==='cheer'?'<circle cx="46" cy="49" r="2" fill="#1f1f1f"/><circle cx="76" cy="49" r="2" fill="#1f1f1f"/>':'<circle cx="45" cy="51" r="2.4" fill="#1f1f1f"/><circle cx="75" cy="51" r="2.4" fill="#1f1f1f"/>'}
+    <!-- nose -->
+    <ellipse cx="60" cy="60" rx="4" ry="3" fill="#1f1f1f"/>
+    ${mouth}${blush}
+    <!-- body -->
+    <ellipse cx="60" cy="98" rx="30" ry="26" fill="#fff" stroke="#e6e2d6" stroke-width="1.5"/>
+    ${arm}
+    <ellipse cx="44" cy="118" rx="9" ry="6" fill="#1f1f1f"/><ellipse cx="76" cy="118" rx="9" ry="6" fill="#1f1f1f"/>
+    ${gift}${snow}
+    <!-- pencil for idle -->
+    ${mood==='idle'?'<g transform="rotate(20 108 88)"><rect x="104" y="66" width="6" height="30" fill="#ffb23e"/><path d="M104 96 h6 l-3 6 z" fill="#7a5230"/></g>':''}
+  </svg></div>`;
+}
+
+/* ============ STORAGE ============ */
+const KEY='pxxs_v5';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+function save(){localStorage.setItem(KEY,JSON.stringify(DB))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fmtDate(s){const [y,m,d]=s.split('-');return `${y}年${+m}月${+d}日`}
+
+let DB = load() || seed();
+const REMEMBER_KEY='pxxs_remember';
+// session: which student account is currently logged in
+let SESSION={studentId:null};
+// helper: the currently logged-in student account
+function cur(){return DB.students.find(s=>s.id===SESSION.studentId)||null}
+// live alias so existing student-facing code that reads DB.student keeps working
+Object.defineProperty(DB,'student',{get:()=>cur(),configurable:true});
+
+// migration for taxonomy fields
+if(!DB.settings.grades) DB.settings.grades=['一年级','二年级','三年级','四年级','五年级','六年级'];
+if(!DB.settings.subjects) DB.settings.subjects=['语文','数学','英语'];
+DB.questions.forEach(q=>{if(q.grade===undefined)q.grade='';if(q.subject===undefined)q.subject='';});
+DB.parts.forEach(p=>{if(p.grade===undefined)p.grade='';if(p.subject===undefined)p.subject='';});
+(DB.students||[]).forEach(s=>{if(s.weekStreak===undefined)s.weekStreak=0;if(!s.partsBySubject)s.partsBySubject={};});
+if(DB.settings.freezeStoneCost===50)DB.settings.freezeStoneCost=30;
+if(!DB.settings.badges)DB.settings.badges=[
+  {id:uid(),icon:'🐾',name:'首次打卡',type:'streak',target:1,subject:''},
+  {id:uid(),icon:'🌸',name:'连续 7 天',type:'streak',target:7,subject:''},
+  {id:uid(),icon:'👑',name:'连续 30 天',type:'streak',target:30,subject:''},
+  {id:uid(),icon:'🦸',name:'连续 100 天',type:'streak',target:100,subject:''},
+  {id:uid(),icon:'💯',name:'完成 100 个 Part',type:'parts',target:100,subject:''},
+];
+save();
+
+// blank progress template for a fresh student account
+function blankProgress(){return {avatar:'base',points:0,streak:0,weekStreak:0,lastCompleteDate:'',freezeStones:0,totalParts:0,partsBySubject:{},checkins:[],redemptions:[],badges:[]}}
+
+function seed(){
+  const qs=[
+    // [question,A,B,C,D,correct, grade, subject]
+    ['3 + 5 等于多少？','7','8','9','10','B','一年级','数学'],
+    ['12 - 4 等于多少？','6','7','8','9','C','一年级','数学'],
+    ['下面哪个字是"人"？','人','入','八','大','A','一年级','语文'],
+    ['苹果的英文是？','apple','banana','cat','dog','A','一年级','英语'],
+    // 三年级数学 —— 10 道，正好组成一个 Part
+    ['太阳从哪个方向升起？','东方','西方','南方','北方','A','三年级','数学'],
+    ['一年有多少个月？','10','11','12','13','C','三年级','数学'],
+    ['水在多少摄氏度结冰？','0°C','10°C','100°C','-10°C','A','三年级','数学'],
+    ['一周有几天？','5','6','7','8','C','三年级','数学'],
+    ['彩虹有几种颜色？','5','6','7','8','C','三年级','数学'],
+    ['24 ÷ 6 等于多少？','3','4','5','6','B','三年级','数学'],
+    ['7 × 8 等于多少？','54','56','58','63','B','三年级','数学'],
+    ['100 里面有几个十？','1','10','100','1000','B','三年级','数学'],
+    ['一个正方形有几条边？','3','4','5','6','B','三年级','数学'],
+    ['半小时等于多少分钟？','15','20','30','60','C','三年级','数学'],
+    // 三年级语文 & 英语 —— 示例
+    ['"明亮"的近义词是？','黑暗','光亮','安静','寒冷','B','三年级','语文'],
+    ['熊猫最爱吃什么？','竹子','蜂蜜','鱼','胡萝卜','A','三年级','英语'],
+  ];
+  const questions=qs.map(q=>({id:uid(),question:q[0],optionA:q[1],optionB:q[2],optionC:q[3],optionD:q[4],correctAnswer:q[5],grade:q[6],subject:q[7],createdAt:today()}));
+  const byGS=(g,s)=>questions.filter(q=>q.grade===g&&q.subject===s).map(q=>q.id);
+  return {
+    settings:{teacherPassword:'123123',dailyPartRequirement:1,weeklyPartGoal:5,freezeStoneCost:30,
+      grades:['一年级','二年级','三年级','四年级','五年级','六年级'],
+      subjects:['语文','数学','英语'],
+      // badges: teacher-editable. type: streak|points|parts|weekStreak. subject only for parts ('' = all subjects)
+      badges:[
+        {id:uid(),icon:'🐾',name:'首次打卡',type:'streak',target:1,subject:''},
+        {id:uid(),icon:'🌸',name:'连续 7 天',type:'streak',target:7,subject:''},
+        {id:uid(),icon:'👑',name:'连续 30 天',type:'streak',target:30,subject:''},
+        {id:uid(),icon:'🦸',name:'连续 100 天',type:'streak',target:100,subject:''},
+        {id:uid(),icon:'💯',name:'完成 100 个 Part',type:'parts',target:100,subject:''},
+        {id:uid(),icon:'🔢',name:'数学小天才',type:'parts',target:100,subject:'数学'},
+      ]},
+    questions,
+    parts:[
+      {id:uid(),name:'三年级数学 - Part 1',grade:'三年级',subject:'数学',questionIds:byGS('三年级','数学').slice(0,10),createdAt:today()},
+    ],
+    rewards:[
+      {id:uid(),name:'免作业卡',pointsCost:100,stock:0,isActive:true,createdAt:today()},
+      {id:uid(),name:'棒棒糖',pointsCost:30,stock:20,isActive:true,createdAt:today()},
+      {id:uid(),name:'炫酷贴纸',pointsCost:20,stock:0,isActive:true,createdAt:today()},
+    ],
+    // student ACCOUNTS: teacher sets realName + account(username) + password + grade.
+    // nickname is written by the student on first login. progress is per-account.
+    students:[
+      {id:uid(),realName:'李子轩',account:'stu001',password:'1234',grade:'三年级',nickname:'',createdAt:today(),
+        avatar:'base',points:80,streak:3,weekStreak:3,lastCompleteDate:'',freezeStones:1,totalParts:5,partsBySubject:{'数学':5},checkins:[],redemptions:[],badges:[]},
+    ],
+  };
+}
+function weekStartOf(dstr){const d=new Date(dstr);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function daysBetween(a,b){const p=s=>{const[y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};return Math.round((p(b)-p(a))/86400000)}
+function addDays(dstr,n){const[y,m,d]=dstr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d));dt.setUTCDate(dt.getUTCDate()+n);return dt.toISOString().slice(0,10)}
+
+/* week is now driven by consecutive-day streak (weekStreak), not a calendar cycle */
+function checkWeek(){}
+
+/* reconcile missed days: for each full day skipped since last completion,
+   spend a freeze stone to protect the streak, or break it if none left */
+function reconcileStreak(){
+  const s=cur(); if(!s||!s.lastCompleteDate||s.streak===0) return;
+  const dayMs=86400000;
+  const parse=d=>{const[y,m,dd]=d.split('-').map(Number);return Date.UTC(y,m-1,dd)};
+  let last=parse(s.lastCompleteDate), now=parse(today());
+  let gap=Math.round((now-last)/dayMs); // 0 today, 1 yesterday(fine), 2+ missed days
+  let missed=gap-1; if(missed<=0) return;
+  let noticed=false;
+  if(s.weekStreak===undefined)s.weekStreak=0;
+  while(missed>0){
+    if(s.freezeStones>0){s.freezeStones--;
+      s.checkins.push({id:uid(),studentId:s.id,date:new Date(now-(missed)*dayMs).toISOString().slice(0,10),partId:null,score:0,usedFreeze:true,createdAt:today()});
+      s.lastCompleteDate=new Date(now-(missed-0)*dayMs).toISOString().slice(0,10);
+      // freeze day keeps the streak alive → counts toward week streak too
+      s.weekStreak++;
+      if(s.weekStreak>=7){ s.points+=20; s.weekStreak=0; }
+    } else {s.streak=0; s.weekStreak=0; noticed='break'; break;}
+    if(!noticed)noticed='freeze';
+    missed--;
+  }
+  save();
+  STATE._streakNotice=noticed;
+}
+
+/* ============ APP RENDER ============ */
+const app=document.getElementById('app');
+let currentTab='home';
+let quiz=null;
+
+function render(view){
+  if(view) STATE.view=view;
+  const v=STATE.view;
+  if(v==='splash') return renderSplash();
+  if(v==='student') return renderStudent();
+  if(v==='teacher') return renderTeacher();
+}
+const STATE={view:'splash'};
+
+/* -------- SPLASH -------- */
+function renderSplash(){
+  app.innerHTML=`<div class="screen active"><div class="scroll grow" style="display:flex;flex-direction:column;justify-content:center;padding-bottom:16px">
+    <div class="brand-hero">
+      <div style="display:flex;justify-content:center">${panda('idle')}</div>
+      <h1>品学学神</h1>
+      <div class="slogan">每天一品，学成学神！🐼</div>
+    </div>
+    <div class="pad">
+      <button class="btn btn-primary" style="margin-bottom:14px" onclick="enterStudent()">🎓 学生模式</button>
+      <button class="btn btn-ghost" onclick="askPass()">👩‍🏫 老师模式</button>
+    </div>
+  </div></div>`;
+}
+function enterStudent(){
+  SESSION.studentId=null; // log out any previous session
+  renderGradePick();
+}
+function renderGradePick(){
+  const grades=DB.settings.grades;
+  app.innerHTML=`<div class="screen active"><div class="scroll grow" style="display:flex;flex-direction:column;justify-content:center;padding-bottom:16px">
+    <div style="text-align:center;margin-bottom:8px">${panda('happy',96)}</div>
+    <div class="speech" style="margin:0 auto 22px;display:table">你是几年级的呀？</div>
+    <div class="pad" style="padding-top:0">
+      ${grades.map(g=>`<button class="btn btn-ghost" style="margin-bottom:12px" onclick="renderLogin('${g}')">${g}</button>`).join('')}
+      <button class="btn btn-ghost" style="margin-top:6px;color:var(--muted)" onclick="render('splash')">‹ 返回</button>
+    </div>
+  </div></div>`;
+}
+function renderLogin(grade){
+  app.innerHTML=`<div class="screen active">
+    <div class="topbar"><button class="back" onclick="renderGradePick()">‹</button><h3>${grade} · 登录</h3></div>
+    <div class="scroll grow" style="display:flex;flex-direction:column;justify-content:center;padding-bottom:16px">
+    <div style="text-align:center;margin-bottom:6px" id="loginPanda">${panda('expect',90)}</div>
+    <div class="pad">
+      <label class="fld">账号</label>
+      <input id="lg_acc" placeholder="老师给你的账号" autocomplete="off">
+      <label class="fld">密码</label>
+      <input id="lg_pw" type="password" placeholder="老师给你的密码">
+      <label class="row tap" style="gap:8px;margin-bottom:12px;font-size:14px;font-weight:600"><input type="checkbox" id="lg_remember" checked style="width:auto;margin:0"> 在这台设备上记住我（下次自动登录）</label>
+      <button class="btn btn-primary" onclick="doLogin('${grade}')">登录</button>
+      <div class="muted" style="text-align:center;font-size:13px;margin-top:12px">账号和密码由老师分配，忘记了找老师哦<br>多人共用一台设备时，请不要勾选“记住我”</div>
+    </div></div></div>`;
+}
+function doLogin(grade){
+  const acc=document.getElementById('lg_acc').value.trim();
+  const pw=document.getElementById('lg_pw').value;
+  const stu=DB.students.find(s=>s.grade===grade && s.account===acc && s.password===pw);
+  if(!stu){
+    document.getElementById('loginPanda').innerHTML=panda('sad',90);
+    const p=document.getElementById('loginPanda').querySelector('.panda');p&&p.classList.add('shake');
+    toast('账号或密码不对哦');
+    return;
+  }
+  SESSION.studentId=stu.id;
+  const remember=document.getElementById('lg_remember');
+  if(remember&&remember.checked){try{localStorage.setItem(REMEMBER_KEY,stu.id)}catch(e){}}
+  else{try{localStorage.removeItem(REMEMBER_KEY)}catch(e){}}
+  checkWeek(); reconcileStreak();
+  if(!stu.nickname){ renderNickname(); return; } // first login → set nickname
+  currentTab='home';
+  render('student');
+}
+function renderNickname(){
+  app.innerHTML=`<div class="screen active"><div class="scroll grow" style="display:flex;flex-direction:column;justify-content:center;padding-bottom:16px">
+    <div style="text-align:center;margin-bottom:6px">${panda('happy',96)}</div>
+    <div class="speech" style="margin:0 auto 20px;display:table">第一次来呀！给自己起个名字吧～</div>
+    <div class="pad">
+      <label class="fld">你的昵称</label>
+      <input id="nk" placeholder="想让大家怎么称呼你？" maxlength="12">
+      <button class="btn btn-primary" onclick="saveNickname()">就叫这个名字！</button>
+    </div></div></div>`;
+}
+function saveNickname(){
+  const nk=document.getElementById('nk').value.trim();
+  if(!nk){toast('写一个名字吧');return}
+  const s=cur(); s.nickname=nk; save();
+  currentTab='home';
+  render('student');
+}
+function pickGrade(g){ renderGradePick(); } // legacy safety, unused
+function askPass(){
+  openModal(`<h3>老师登录</h3>
+    <div style="display:flex;justify-content:center;margin-bottom:6px" id="passPanda">${panda('expect',90)}</div>
+    <label class="fld">请输入密码</label>
+    <input id="pw" type="password" inputmode="numeric" placeholder="••••••" autofocus>
+    <div class="row" style="gap:10px"><button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="tryPass()">进入</button></div>`);
+}
+function tryPass(){
+  if(document.getElementById('pw').value===DB.settings.teacherPassword){closeModal();render('teacher')}
+  else{document.getElementById('passPanda').innerHTML=panda('sad',90);const p=document.getElementById('passPanda').querySelector('.panda');p.classList.add('shake');toast('密码错误 🐼 摇摇头')}
+}
+
+/* -------- STUDENT -------- */
+function renderStudent(){
+  if(!cur()){render('splash');return}
+  app.innerHTML=`<div class="screen active"><div class="scroll" id="body"></div>
+    <div class="nav" id="nav">
+      <button data-t="home" onclick="tab('home')"><span class="ic">🏠</span>主页</button>
+      <button data-t="shop" onclick="tab('shop')"><span class="ic">🎁</span>商城</button>
+      <button data-t="rec" onclick="tab('rec')"><span class="ic">📋</span>记录</button>
+      <button data-t="me" onclick="tab('me')"><span class="ic">👤</span>我的</button>
+    </div></div>`;
+  tab(currentTab);
+}
+function tab(t){currentTab=t;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  if(t==='home')stuHome();if(t==='shop')stuShop();if(t==='rec')stuRec();if(t==='me')stuMe();}
+
+function stuHome(){
+  const s=DB.student;
+  if(!s){render('splash');return}
+  const done=s.lastCompleteDate===today();
+  const ws=Math.min(s.weekStreak||0,7);
+  const todayCount=s.checkins.filter(c=>c.date===today()&&!c.usedFreeze).length;
+  let notice='';
+  if(STATE._streakNotice==='freeze')notice=`<div class="card" style="background:var(--bamboo-light)"><div class="row" style="gap:10px">${panda('comfort',48)}<div><b>❄️ 已使用冻结石保护连续天数</b><div class="muted" style="font-size:13px">我帮你保住连续天数啦！</div></div></div></div>`;
+  if(STATE._streakNotice==='break')notice=`<div class="card" style="background:var(--flame-soft)"><div class="row" style="gap:10px">${panda('sad',48)}<div><b>🔥 连续天数已中断</b><div class="muted" style="font-size:13px">没关系，今天重新开始吧！</div></div></div></div>`;
+  STATE._streakNotice=null;
+  const weekDots=Array.from({length:7},(_,i)=>`<div style="flex:1;aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:${i<ws?'var(--flame)':'#f0ede3'};color:${i<ws?'#fff':'var(--muted)'}">${i<ws?'🔥':i+1}</div>`).join('');
+  document.getElementById('body').innerHTML=`
+    ${notice}`+`
+    <div class="row between" style="margin-bottom:14px">
+      <div class="row">${panda('idle',56)}<div><div style="font-weight:800;font-size:16px">${s.nickname||'小学神'}</div>
+      <div class="row" style="gap:6px;margin-top:4px"><span class="chip">${s.grade}</span>
+      <span class="pill" style="border-color:var(--flame-soft);padding:3px 10px">🔥 ${s.streak} 天</span></div></div></div>
+      <div class="pill">⭐ ${s.points}</div>
+    </div>
+    <div class="card">
+      <div class="row between"><span class="muted" style="font-weight:600">今日状态</span>
+      <span class="chip" style="background:${done?'var(--bamboo-light)':'var(--flame-soft)'};color:${done?'var(--bamboo-deep)':'var(--flame)'}">${done?'✅ 已打卡':'⏳ 未打卡'}</span></div>
+      <hr>
+      <button class="btn btn-primary" onclick="pickSubject()">${done?'再来一次练习 💪':'开始今日练习'}</button>
+      <div class="muted" style="text-align:center;margin-top:10px;font-size:13px">今日已完成 ${todayCount} 个 Part${done?' · 已打卡，继续练更棒！':''}</div>
+    </div>
+    <div class="card">
+      <div class="row between" style="margin-bottom:10px"><span style="font-weight:700">📅 本周连续</span><span class="muted">${ws} / 7 天</span></div>
+      <div class="row" style="gap:6px">${weekDots}</div>
+      <div class="muted" style="font-size:13px;margin-top:10px">${ws>=7?'🎉 本周连续达成！':`连续 7 天可得 +20 ⭐，还差 ${7-ws} 天`}</div>
+    </div>
+    <div class="grid2">
+      <div class="stat"><div class="l">❄️ 冻结石</div><div class="v">${s.freezeStones}</div></div>
+      <div class="stat"><div class="l">📚 累计 Part</div><div class="v">${s.totalParts}</div></div>
+    </div>`;
+}
+
+/* ---- QUIZ ---- */
+const MAX_WRONG=5;
+function pickSubject(){
+  const s=DB.student;
+  if(!s.grade){toast('请先选择年级');renderGradePick();return}
+  // subjects that actually have a full Part for this grade
+  const avail=DB.settings.subjects.filter(sub=>
+    DB.parts.some(p=>p.grade===s.grade&&p.subject===sub&&p.questionIds.length===10));
+  if(!avail.length){
+    openModal(`<div style="display:flex;justify-content:center">${panda('comfort',90)}</div>
+      <h3 style="margin-top:8px">${s.grade}还没有可练习的题目</h3>
+      <p class="muted" style="text-align:center;font-size:14px">请让老师为这个年级创建练习 Part 哦～</p>
+      <button class="btn btn-primary" onclick="closeModal()">好的</button>`);
+    return;
+  }
+  const icon={'语文':'📖','数学':'🔢','英语':'🔤'};
+  openModal(`<div style="display:flex;justify-content:center">${panda('expect',84)}</div>
+    <h3 style="margin-top:6px">${s.grade} · 今天练哪一科？</h3>
+    ${avail.map(sub=>`<button class="btn btn-ghost" style="margin-bottom:10px;text-align:left" onclick="startQuiz('${sub}')">${icon[sub]||'📚'} ${sub}</button>`).join('')}
+    <button class="btn btn-ghost" style="color:var(--muted)" onclick="closeModal()">取消</button>`);
+}
+function startQuiz(subject){
+  const s=DB.student;
+  closeModal();
+  const parts=DB.parts.filter(p=>p.questionIds.length===10 && p.grade===s.grade && (!subject||p.subject===subject));
+  if(!parts.length){toast('这一科还没有练习哦');return}
+  const part=parts[Math.floor(Math.random()*parts.length)];
+  const qs=part.questionIds.map(id=>DB.questions.find(q=>q.id===id)).filter(Boolean);
+  if(qs.length<10){toast('题目不足，请联系老师');return}
+  quiz={part,subject,qs,queue:qs.map((_,i)=>i),correct:0,wrong:0,locked:false};
+  drawQ();
+}
+function drawQ(){
+  const q=quiz.qs[quiz.queue[0]];
+  const remaining=quiz.queue.length;
+  const hearts=Array.from({length:MAX_WRONG},(_,i)=>i<quiz.wrong?'🤍':'❤️').join(' ');
+  app.innerHTML=`<div class="screen active">
+    <div class="topbar"><button class="back" onclick="quitQuiz()">✕</button>
+      <h3>${quiz.subject?quiz.subject+' · ':''}还剩 ${remaining} 题</h3>${panda('expect',44)}</div>
+    <div class="scroll" style="padding-bottom:24px">
+      <div class="row between" style="margin-bottom:10px">
+        <span class="chip" style="background:var(--flame-soft);color:var(--flame)">错误机会 ${MAX_WRONG-quiz.wrong}/${MAX_WRONG}</span>
+        <span style="font-size:15px;letter-spacing:2px">${hearts}</span>
+      </div>
+      <div class="card" style="min-height:88px;display:flex;align-items:center;font-size:19px;font-weight:700;line-height:1.5">${q.question}</div>
+      <div id="opts">
+        ${['A','B','C','D'].map(L=>`<div class="opt" data-l="${L}" onclick="answer('${L}')"><span class="lab">${L}</span><span>${q['option'+L]}</span></div>`).join('')}
+      </div>
+    </div></div>`;
+}
+function answer(L){
+  if(quiz.locked)return; quiz.locked=true;
+  const q=quiz.qs[quiz.queue[0]], right=q.correctAnswer;
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('lock'));
+  const chosen=document.querySelector(`.opt[data-l="${L}"]`);
+  const rightEl=document.querySelector(`.opt[data-l="${right}"]`);
+  const pandaEl=document.querySelector('.topbar .panda');
+  if(L===right){
+    chosen.classList.add('correct');quiz.correct++;
+    quiz.queue.shift(); // this question is done
+    pandaEl.parentNode.innerHTML=panda('happy',44);document.querySelector('.topbar .panda').classList.add('jump');
+    setTimeout(next,650);
+  }else{
+    chosen.classList.add('wrong');rightEl.classList.add('correct');
+    quiz.wrong++;
+    const first=quiz.queue.shift(); quiz.queue.push(first); // move wrong question to the back
+    pandaEl.parentNode.innerHTML=panda('comfort',44);
+    if(quiz.wrong>=MAX_WRONG) toast('错误次数用完了…');
+    else toast('答错啦，这题待会儿会再出现哦！');
+    setTimeout(next,1600);
+  }
+}
+function next(){
+  quiz.locked=false;
+  if(quiz.wrong>=MAX_WRONG) return finishQuiz(false); // ran out of chances → fail
+  if(quiz.queue.length===0) return finishQuiz(true);  // all answered correctly → pass
+  drawQ();
+}
+function quitQuiz(){quiz=null;render('student');}
+
+function finishQuiz(passed){
+  const s=DB.student;
+  // FAIL: ran out of the 5 chances — no check-in, no points, encourage retry
+  if(!passed){
+    confetti && 0; // no confetti on fail
+    app.innerHTML=`<div class="screen active"><div class="scroll grow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:30px">
+      <div>${panda('comfort')}</div>
+      <div class="speech" style="margin:14px 0 20px">错误次数用完啦，再来一次就好！</div>
+      <div class="card" style="width:100%;max-width:320px">
+        <div class="row between"><span>答对</span><b style="color:var(--bamboo-deep)">${quiz.correct} 题</b></div>
+        <div class="row between" style="margin-top:8px"><span>答错</span><b style="color:var(--wrong)">${quiz.wrong} 次</b></div>
+        <hr>
+        <div class="muted" style="font-size:13px">这轮没有完成，今日打卡还没到手哦。别灰心，再挑战一次吧！</div>
+      </div>
+      <button class="btn btn-primary" style="max-width:320px;margin-top:8px" onclick="startQuiz('${quiz.subject||''}')">再来一次</button>
+      <button class="btn btn-ghost" style="max-width:320px;margin-top:10px" onclick="quiz=null;render('student')">返回主页</button>
+    </div></div>`;
+    return;
+  }
+
+  // PASS: all questions answered correctly within the mistake limit
+  const wasDone=s.lastCompleteDate===today();
+  const correctTally=quiz.correct, wrongTally=quiz.wrong;
+  const earnedBefore=earnedBadges(s).map(b=>b.id);
+  s.checkins.push({id:uid(),studentId:s.id,date:today(),partId:quiz.part.id,score:correctTally,usedFreeze:false,createdAt:today()});
+  s.totalParts++;
+  if(!s.partsBySubject)s.partsBySubject={};
+  if(quiz.subject){s.partsBySubject[quiz.subject]=(s.partsBySubject[quiz.subject]||0)+1;}
+  let gained=3; addPoints(3,false); // each practice = +3
+  let newStreak=false, milestone='', weekDone=false;
+  if(!wasDone){
+    const y=new Date();y.setDate(y.getDate()-1);
+    const yStr=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    const continues = s.lastCompleteDate===yStr;
+    // total streak
+    if(continues) s.streak++; else s.streak=1;
+    // week streak (consecutive days within current week, 0..7)
+    if(s.weekStreak===undefined) s.weekStreak=0;
+    if(continues) s.weekStreak++; else s.weekStreak=1;
+    s.lastCompleteDate=today();
+    newStreak=true;
+    // week complete: 7 consecutive days → +20, then start a fresh week
+    if(s.weekStreak>=7){ addPoints(20,false); gained+=20; s.weekStreak=0; weekDone=true; milestone='连续一周达成！+20 ⭐'; }
+    // every 10 total-streak days → +50
+    if(s.streak>0 && s.streak%10===0){ addPoints(50,false); gained+=50; milestone=`连续 ${s.streak} 天！+50 ⭐`; }
+  }
+  // detect any newly-unlocked badges to celebrate on the result screen
+  const newlyEarned=earnedBadges(s).filter(b=>!earnedBefore.includes(b.id));
+  save();
+  confetti();
+  const passPanda = wrongTally===0?'proud':'cheer';
+  app.innerHTML=`<div class="screen active"><div class="scroll grow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:30px">
+    <div>${panda(passPanda)}</div>
+    <div class="speech" style="margin:14px 0 20px">${weekDone?'🎉 连续一周达成！':newStreak?`连续 ${s.streak} 天啦！继续加油！`:'又完成一个 Part！'}</div>
+    <div class="card" style="width:100%;max-width:320px">
+      <div class="row between"><span>答对</span><b style="color:var(--bamboo-deep)">${correctTally} 题</b></div>
+      <div class="row between" style="margin-top:8px"><span>答错</span><b style="color:var(--wrong)">${wrongTally} 次</b></div>
+      ${wrongTally===0?'<div class="chip" style="margin-top:10px">✨ 全对通关！太棒了</div>':''}
+      <hr>
+      <div class="row between"><span>获得积分</span><b style="color:var(--gold)">+${gained} ⭐</b></div>
+      <div class="row between" style="margin-top:8px"><span>今日打卡</span><b style="color:var(--bamboo-deep)">${newStreak?'✅ 成功':'✅ 今日已打卡'}</b></div>
+      <div class="row between" style="margin-top:8px"><span>本周连续</span><b style="color:var(--flame)">${weekDone?'7 / 7 🎉':(s.weekStreak||0)+' / 7'}</b></div>
+      ${milestone?`<div class="chip" style="margin-top:12px;background:var(--flame-soft);color:var(--flame)">🏅 ${milestone}</div>`:''}
+      ${newlyEarned.length?newlyEarned.map(b=>`<div class="chip" style="margin-top:8px;background:var(--bamboo-light);color:var(--bamboo-deep)">🎖️ 解锁徽章：${b.icon} ${b.name}</div>`).join(''):''}
+    </div>
+    <button class="btn btn-primary" style="max-width:320px;margin-top:8px" onclick="quiz=null;render('student')">返回主页</button>
+  </div></div>`;
+}
+
+function addPoints(n){DB.student.points+=n;}
+// badge progress: returns {have, need} for a student against a badge definition
+function badgeProgress(s,b){
+  let have=0;
+  if(b.type==='streak') have=s.streak||0;
+  else if(b.type==='weekStreak') have=s.weekStreak||0;
+  else if(b.type==='points') have=s.points||0;
+  else if(b.type==='parts') have=b.subject?((s.partsBySubject||{})[b.subject]||0):(s.totalParts||0);
+  return {have,need:b.target||0};
+}
+function badgeEarned(s,b){const p=badgeProgress(s,b);return p.have>=p.need;}
+function earnedBadges(s){return (DB.settings.badges||[]).filter(b=>badgeEarned(s,b));}
+
+/* ---- SHOP ---- */
+function stuShop(){
+  const s=DB.student;
+  const fee=DB.settings.freezeStoneCost;
+  const custom=DB.rewards.filter(r=>r.isActive);
+  document.getElementById('body').innerHTML=`
+    <div class="row" style="margin-bottom:14px">${panda('happy',56)}<div class="speech">用积分换奖励吧！</div></div>
+    <div class="pill" style="margin-bottom:14px">⭐ 我的积分 ${s.points}</div>
+    <div class="chip" style="margin-bottom:10px">固定物品</div>
+    <div class="item row between">
+      <div class="row" style="gap:10px"><span style="font-size:26px">❄️</span><div><b>冻结石</b><div class="muted" style="font-size:12px">保护你的连续天数</div></div></div>
+      <button class="btn btn-flame btn-sm" onclick="buy('freeze','冻结石',${fee})">${fee} ⭐</button>
+    </div>
+    <div class="chip" style="margin:16px 0 10px">老师奖励</div>
+    ${custom.length?custom.map(r=>{
+      const out=r.stock>0 && soldOut(r);
+      return `<div class="item row between">
+        <div><b>${r.name}</b>${r.stock>0?`<div class="muted" style="font-size:12px">库存 ${remain(r)}</div>`:'<div class="muted" style="font-size:12px">不限量</div>'}</div>
+        <button class="btn ${out?'':'btn-gold'} btn-sm" ${out?'disabled':''} onclick="buy('${r.id}','${r.name.replace(/'/g,'')}',${r.pointsCost})">${out?'已兑完':r.pointsCost+' ⭐'}</button>
+      </div>`}).join(''):'<div class="empty">老师还没上架奖励哦</div>'}`;
+}
+function remain(r){const used=DB.student.redemptions.filter(x=>x.itemName===r.name).length;return Math.max(0,r.stock-used)}
+function soldOut(r){return remain(r)<=0}
+
+function buy(id,name,cost){
+  const s=DB.student;
+  if(s.points<cost){openModal(`<h3>积分不足</h3><div style="display:flex;justify-content:center">${panda('comfort',90)}</div>
+    <p style="text-align:center" class="muted">再完成一个 Part 就有啦！</p><button class="btn btn-primary" onclick="closeModal()">好的</button>`);return}
+  openModal(`<div style="display:flex;justify-content:center">${panda('expect',90)}</div>
+    <h3 style="margin-top:8px">确定要用 ${cost} 积分兑换「${name}」吗？</h3>
+    <div class="row" style="gap:10px"><button class="btn btn-ghost" onclick="closeModal()">再想想</button>
+    <button class="btn btn-primary" onclick="doBuy('${id}','${name.replace(/'/g,"")}',${cost})">确定兑换</button></div>`);
+}
+function doBuy(id,name,cost){
+  const s=DB.student; s.points-=cost;
+  const type = id==='freeze'?'freeze_stone':'custom_gift';
+  if(id==='freeze')s.freezeStones++;
+  const code=genCode();
+  const red={id:uid(),studentId:s.id,itemName:name,itemType:type,pointsCost:cost,redemptionDate:today(),redemptionCode:code,status:'pending',createdAt:today()};
+  s.redemptions.unshift(red); save(); closeModal(); confetti();
+  showVoucher(red);
+}
+function genCode(){
+  let code; const existing=DB.student.redemptions.map(r=>r.redemptionCode);
+  do{code='PXXX-'+today().replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();}while(existing.includes(code));
+  return code;
+}
+function showVoucher(r){
+  app.innerHTML=`<div class="screen active"><div class="scroll grow" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:30px">
+    <div>${panda('gift')}</div>
+    <div class="speech" style="margin:12px 0 18px">给你礼物盒 🎁 兑换成功！</div>
+    <div class="voucher" style="width:100%;max-width:320px">
+      <div style="font-size:20px;font-weight:800">${r.itemName}</div>
+      <div class="code">${r.redemptionCode}</div>
+      <div class="muted">兑换日期：${fmtDate(r.redemptionDate)}</div>
+      <div style="margin-top:8px"><span class="status-tag pending">待领取</span></div>
+      <div class="muted" style="margin-top:12px;font-size:13px">📸 请截图此页面发给老师领取</div>
+    </div>
+    <button class="btn btn-primary" style="max-width:320px;margin-top:16px" onclick="render('student')">完成</button>
+  </div></div>`;
+}
+
+/* ---- RECORDS ---- */
+function stuRec(){
+  const rs=DB.student.redemptions;
+  document.getElementById('body').innerHTML=`<h2>兑换记录</h2>
+    ${rs.length?rs.map(r=>`<div class="item">
+      <div class="row between"><b>${r.itemName}</b><span class="status-tag ${r.status}">${r.status==='pending'?'待领取':'已领取'}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:4px">${fmtDate(r.redemptionDate)}</div>
+      <div style="font-family:monospace;font-size:13px;color:var(--bamboo-deep);margin-top:2px">${r.redemptionCode}</div>
+      ${r.status==='pending'?`<button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="showVoucher(DB.student.redemptions.find(x=>x.id==='${r.id}'))">截图给老师</button>`:''}
+    </div>`).join(''):'<div class="empty">还没有兑换记录<br>去商城看看吧 🎁</div>'}`;
+}
+
+/* ---- ME ---- */
+function stuMe(){
+  const s=DB.student;
+  const defs=DB.settings.badges||[];
+  document.getElementById('body').innerHTML=`
+    <div style="text-align:center">${panda(s.streak>=30?'proud':'idle')}
+      <div style="font-weight:800;font-size:20px;margin-top:6px">${s.nickname||'小学神'}</div>
+      <div class="muted">${s.grade} · ${avatarLabel()}</div>
+    </div>
+    <div class="grid2" style="margin:16px 0">
+      <div class="stat"><div class="l">⭐ 总积分</div><div class="v">${s.points}</div></div>
+      <div class="stat"><div class="l">🔥 连续打卡</div><div class="v">${s.streak}</div></div>
+      <div class="stat"><div class="l">📚 累计 Part</div><div class="v">${s.totalParts}</div></div>
+      <div class="stat"><div class="l">❄️ 冻结石</div><div class="v">${s.freezeStones}</div></div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:14px">🏅 成就徽章</div>
+      ${defs.length?`<div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+        ${defs.map(b=>{const pr=badgeProgress(s,b);const got=pr.have>=pr.need;
+          return `<div class="badge ${got?'':'locked'}"><div class="ring">${b.icon}</div><span>${b.name}</span>${got?'':`<span style="font-size:10px;color:var(--flame)">${Math.min(pr.have,pr.need)}/${pr.need}</span>`}</div>`;}).join('')}
+      </div>`:'<div class="empty" style="padding:20px">老师还没设置徽章哦</div>'}
+    </div>
+    <button class="btn btn-ghost" onclick="logoutStudent()">退出登录</button>`;
+}
+function logoutStudent(){SESSION.studentId=null;try{localStorage.removeItem(REMEMBER_KEY)}catch(e){}currentTab='home';render('splash')}
+function avatarLabel(){const s=DB.student;if(s.streak>=100)return '🦸 披风学神';if(s.streak>=30)return '👑 皇冠学神';if(s.streak>=7)return '🌸 花环学神';return '品学熊猫 · 基础款'}
+
+/* ============ TEACHER ============ */
+function renderTeacher(){teacherHome();}
+function tHeader(title){return `<div class="topbar"><button class="back" onclick="teacherHome()">‹</button><h3>${title}</h3></div>`}
+
+// all redemptions across every student, tagged with the owning student
+function allRedemptions(){
+  const out=[];
+  DB.students.forEach(s=>(s.redemptions||[]).forEach(r=>out.push({...r,_student:s})));
+  return out.sort((a,b)=>(b.redemptionDate||'').localeCompare(a.redemptionDate||''));
+}
+function studentLabel(s){return `${s.nickname||'（未起昵称）'}（${s.realName}）`}
+
+function teacherHome(){
+  const pending=allRedemptions().filter(r=>r.status==='pending').length;
+  app.innerHTML=`<div class="screen active">
+    <div class="topbar"><button class="back" onclick="render('splash')">‹</button><h3>老师中心</h3></div>
+    <div class="scroll">
+      <div class="grid2">
+        <div class="stat"><div class="l">题目总数</div><div class="v">${DB.questions.length}</div></div>
+        <div class="stat"><div class="l">Part 总数</div><div class="v">${DB.parts.length}</div></div>
+        <div class="stat"><div class="l">学生账号</div><div class="v">${DB.students.length}</div></div>
+        <div class="stat"><div class="l">待处理兑换</div><div class="v">${pending}${pending?'<span class="dot-red">!</span>':''}</div></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        ${menuItem('👨‍🎓','学生账号','tStudents')}
+        ${menuItem('📝','题目管理','tQuestions')}
+        ${menuItem('📦','Part 管理','tParts')}
+        ${menuItem('🎁','奖励管理','tRewards')}
+        ${menuItem('🏅','成就徽章','tBadges')}
+        ${menuItem('📊','学生进度','openProgress')}
+        ${menuItem('⚙️','设置','tSettings')}
+      </div>
+    </div></div>`;
+}
+function menuItem(ic,label,fn){return `<div class="row between tap" style="padding:14px 4px;border-bottom:1px solid var(--line)" onclick="${fn}()"><span style="font-weight:700">${ic} ${label}</span><span class="muted">›</span></div>`}
+
+/* ---- Student accounts ---- */
+function tStudents(){
+  const gg=DB.settings.grades;
+  const g=tStudents._g||'';
+  const list=DB.students.filter(s=>!g||s.grade===g);
+  app.innerHTML=`<div class="screen active">${tHeader('学生账号')}<div class="scroll">
+    <button class="btn btn-primary" style="margin-bottom:14px" onclick="editStudent()">+ 添加学生账号</button>
+    <select id="sfg" onchange="tStudents._g=this.value;tStudents()" style="margin-bottom:12px">
+      <option value="">全部年级（${DB.students.length}）</option>
+      ${gg.map(x=>`<option ${g===x?'selected':''}>${x}（${DB.students.filter(s=>s.grade===x).length}）</option>`).join('')}
+    </select>
+    ${list.length?list.map(s=>`<div class="item">
+      <div class="row between">
+        <b>${s.nickname||'（学生未起昵称）'}</b>
+        <span class="chip">${s.grade}</span>
+      </div>
+      <div class="muted" style="font-size:13px;margin:4px 0">真实姓名：${s.realName}</div>
+      <div class="muted" style="font-size:13px">账号：${s.account} · 密码：${s.password}${s.nickname?'':' · <span style="color:var(--flame)">未登录过</span>'}</div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" onclick="editStudent('${s.id}')">编辑</button>
+        <button class="btn btn-ghost btn-sm" onclick="viewStudentProgress('${s.id}')">进度</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--wrong)" onclick="delStudent('${s.id}')">删除</button>
+      </div>
+    </div>`).join(''):'<div class="empty">这个年级还没有学生账号<br>点上方按钮添加</div>'}
+    </div></div>`;
+}
+function editStudent(id){
+  const gg=DB.settings.grades;
+  const s=id?DB.students.find(x=>x.id===id):{realName:'',account:'',password:'',grade:(tStudents._g||gg[0]),nickname:''};
+  openModal(`<h3>${id?'编辑':'添加'}学生账号</h3>
+    <label class="fld">真实姓名（只有老师能看到）</label><input id="st_real" value="${(s.realName||'').replace(/"/g,'&quot;')}" placeholder="如：李子轩">
+    <label class="fld">年级</label>
+    <select id="st_grade">${gg.map(x=>`<option ${s.grade===x?'selected':''}>${x}</option>`).join('')}</select>
+    <label class="fld">登录账号</label><input id="st_acc" value="${(s.account||'').replace(/"/g,'&quot;')}" placeholder="如：stu001" autocomplete="off">
+    <label class="fld">登录密码</label><input id="st_pw" value="${(s.password||'').replace(/"/g,'&quot;')}" placeholder="如：1234">
+    ${id?`<label class="fld">学生昵称（学生自己起的）</label><input id="st_nick" value="${(s.nickname||'').replace(/"/g,'&quot;')}" placeholder="（学生还没起）">`:''}
+    <div class="modal-foot row" style="gap:10px"><button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveStudent('${id||''}')">保存</button></div>`);
+}
+function saveStudent(id){
+  const g=x=>document.getElementById(x).value.trim();
+  const realName=g('st_real'), grade=document.getElementById('st_grade').value, account=g('st_acc'), password=g('st_pw');
+  if(!realName||!account||!password){toast('姓名、账号、密码都要填');return}
+  // account must be unique within the same grade
+  const clash=DB.students.some(s=>s.id!==id && s.grade===grade && s.account===account);
+  if(clash){toast('该年级已有相同账号');return}
+  if(id){
+    const s=DB.students.find(x=>x.id===id);
+    Object.assign(s,{realName,grade,account,password});
+    const nk=document.getElementById('st_nick'); if(nk) s.nickname=nk.value.trim();
+  }else{
+    DB.students.push({id:uid(),realName,grade,account,password,nickname:'',createdAt:today(),...blankProgress()});
+  }
+  save();closeModal();tStudents();
+}
+function delStudent(id){
+  const s=DB.students.find(x=>x.id===id);
+  confirmBox(`确定删除「${s.realName}」的账号？该学生的积分、打卡等记录会一起删除。`,()=>{
+    DB.students=DB.students.filter(x=>x.id!==id);
+    if(SESSION.studentId===id)SESSION.studentId=null;
+    save();tStudents();
+  });
+}
+function viewStudentProgress(id){tProgress._id=id;tProgress();}
+function openProgress(){tProgress._id=null;tProgress();}
+
+/* ---- Questions ---- */
+function tQuestions(){
+  const gg=DB.settings.grades, ss=DB.settings.subjects;
+  app.innerHTML=`<div class="screen active">${tHeader('题目管理')}<div class="scroll">
+    <button class="btn btn-primary" style="margin-bottom:14px" onclick="editQ()">+ 添加题目</button>
+    <div class="row" style="gap:8px;margin-bottom:10px">
+      <select id="fg" onchange="tQuestions._g=this.value;renderQList()" style="margin:0">
+        <option value="">全部年级</option>${gg.map(g=>`<option ${tQuestions._g===g?'selected':''}>${g}</option>`).join('')}</select>
+      <select id="fs" onchange="tQuestions._s=this.value;renderQList()" style="margin:0">
+        <option value="">全部科目</option>${ss.map(s=>`<option ${tQuestions._s===s?'selected':''}>${s}</option>`).join('')}</select>
+    </div>
+    <input id="qsearch" placeholder="🔍 搜索题干…" oninput="tQuestions._f=this.value;renderQList()" value="${tQuestions._f||''}">
+    <div id="qlist"></div></div></div>`;
+  renderQList();
+}
+function renderQList(){
+  const f=(tQuestions._f||'').trim(), g=tQuestions._g||'', s=tQuestions._s||'';
+  const list=DB.questions.filter(q=>(!f||q.question.includes(f))&&(!g||q.grade===g)&&(!s||q.subject===s));
+  document.getElementById('qlist').innerHTML=list.length?list.map(q=>`<div class="item">
+    <div class="row" style="gap:6px;margin-bottom:6px;flex-wrap:wrap">
+      ${q.grade?`<span class="chip">${q.grade}</span>`:''}${q.subject?`<span class="chip" style="background:var(--flame-soft);color:var(--flame)">${q.subject}</span>`:''}
+      ${!q.grade&&!q.subject?'<span class="chip" style="background:#eee;color:var(--muted)">未分类</span>':''}
+    </div>
+    <div style="font-weight:600">${q.question}</div>
+    <div class="muted" style="font-size:13px;margin:6px 0">正确答案：${q.correctAnswer}. ${q['option'+q.correctAnswer]}</div>
+    <div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm" onclick="editQ('${q.id}')">编辑</button>
+    <button class="btn btn-ghost btn-sm" style="color:var(--wrong)" onclick="delQ('${q.id}')">删除</button></div>
+  </div>`).join(''):'<div class="empty">没有符合条件的题目</div>';
+}
+function editQ(id){
+  const q=id?DB.questions.find(x=>x.id===id):{question:'',optionA:'',optionB:'',optionC:'',optionD:'',correctAnswer:'A',grade:(tQuestions._g||''),subject:(tQuestions._s||'')};
+  const gg=DB.settings.grades, ss=DB.settings.subjects;
+  openModal(`<h3>${id?'编辑':'添加'}题目</h3>
+    <div class="row" style="gap:8px">
+      <div style="flex:1"><label class="fld">年级</label>
+        <select id="q_grade">${gg.map(g=>`<option ${q.grade===g?'selected':''}>${g}</option>`).join('')}</select></div>
+      <div style="flex:1"><label class="fld">科目</label>
+        <select id="q_subject">${ss.map(s=>`<option ${q.subject===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    </div>
+    <label class="fld">题干</label><textarea id="q_q">${q.question}</textarea>
+    ${['A','B','C','D'].map(L=>`<label class="fld">选项 ${L}</label><input id="q_${L}" value="${(q['option'+L]||'').replace(/"/g,'&quot;')}">`).join('')}
+    <label class="fld">正确答案</label>
+    <div class="row" id="ansRow" style="gap:8px;margin-bottom:12px">${['A','B','C','D'].map(L=>`<button class="btn btn-sm ${q.correctAnswer===L?'btn-primary':'btn-ghost'}" style="flex:1" onclick="pickAns('${L}')">${L}</button>`).join('')}</div>
+    <div class="modal-foot row" style="gap:10px"><button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveQ('${id||''}')">保存</button></div>`);
+  editQ._ans=q.correctAnswer;
+}
+function pickAns(L){editQ._ans=L;
+  document.querySelectorAll('#ansRow button').forEach(b=>{
+    b.className='btn btn-sm '+(b.textContent.trim()===L?'btn-primary':'btn-ghost');b.style.flex='1';
+  });
+}
+function saveQ(id){
+  const g=x=>document.getElementById(x).value.trim();
+  const data={question:g('q_q'),optionA:g('q_A'),optionB:g('q_B'),optionC:g('q_C'),optionD:g('q_D'),correctAnswer:editQ._ans,
+    grade:document.getElementById('q_grade').value,subject:document.getElementById('q_subject').value};
+  if(!data.question||!data.optionA||!data.optionB||!data.optionC||!data.optionD){toast('请填写完整');return}
+  if(id){Object.assign(DB.questions.find(x=>x.id===id),data)}
+  else{DB.questions.push({id:uid(),...data,createdAt:today()})}
+  save();closeModal();tQuestions();
+}
+function delQ(id){
+  const used=DB.parts.some(p=>p.questionIds.includes(id));
+  confirmBox(used?'该题目已被 Part 使用，删除后需重新编辑 Part。确定删除？':'确定删除这道题目？',()=>{
+    DB.questions=DB.questions.filter(x=>x.id!==id);
+    DB.parts.forEach(p=>p.questionIds=p.questionIds.filter(x=>x!==id));
+    save();renderQList();
+  });
+}
+
+/* ---- Parts ---- */
+function tParts(){
+  app.innerHTML=`<div class="screen active">${tHeader('Part 管理')}<div class="scroll">
+    <button class="btn btn-primary" style="margin-bottom:14px" onclick="editPart()">+ 创建 Part</button>
+    ${DB.parts.map(p=>`<div class="item">
+      <div class="row" style="gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        ${p.grade?`<span class="chip">${p.grade}</span>`:''}${p.subject?`<span class="chip" style="background:var(--flame-soft);color:var(--flame)">${p.subject}</span>`:''}
+        ${!p.grade&&!p.subject?'<span class="chip" style="background:#eee;color:var(--muted)">未分类</span>':''}
+        <span class="chip" style="background:#eef;color:#556">${p.questionIds.length} 题</span>
+      </div>
+      <b>${p.name}</b>
+      <div class="muted" style="font-size:13px;margin:6px 0">创建于 ${p.createdAt}</div>
+      <div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm" onclick="editPart('${p.id}')">编辑</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--wrong)" onclick="delPart('${p.id}')">删除</button></div>
+    </div>`).join('')||'<div class="empty">还没有 Part</div>'}
+    </div></div>`;
+}
+function editPart(id){
+  const gg=DB.settings.grades, ss=DB.settings.subjects;
+  const p=id?DB.parts.find(x=>x.id===id):{name:'',questionIds:[],grade:gg[0],subject:ss[0]};
+  editPart._sel=[...p.questionIds];
+  editPart._g=p.grade||gg[0];
+  editPart._s=p.subject||ss[0];
+  app.innerHTML=`<div class="screen active">${tHeader((id?'编辑':'创建')+' Part')}<div class="scroll">
+    <div class="row" style="gap:8px">
+      <div style="flex:1"><label class="fld">年级</label>
+        <select id="p_grade" onchange="editPart._g=this.value;refreshPick()">${gg.map(g=>`<option ${editPart._g===g?'selected':''}>${g}</option>`).join('')}</select></div>
+      <div style="flex:1"><label class="fld">科目</label>
+        <select id="p_subject" onchange="editPart._s=this.value;refreshPick()">${ss.map(s=>`<option ${editPart._s===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    </div>
+    <label class="fld">Part 名称</label><input id="p_name" value="${(p.name||'').replace(/"/g,'&quot;')}" placeholder="如：三年级数学 - Part 1">
+    <div class="row between" style="margin:6px 0"><span class="fld" style="margin:0">从该年级+科目中选 10 道题</span><span class="chip" id="selcount">${editPart._sel.length}/10</span></div>
+    <div id="qpick"></div>
+    <button class="btn btn-primary" style="margin-top:8px" onclick="savePart('${id||''}')">保存 Part</button>
+  </div></div>`;
+  refreshPick();
+}
+function partPool(){return DB.questions.filter(q=>q.grade===editPart._g&&q.subject===editPart._s)}
+function refreshPick(){
+  const pool=partPool();
+  const el=document.getElementById('qpick');
+  el.innerHTML=pool.length?pool.map(q=>qPickRow(q)).join(''):'<div class="empty" style="padding:20px">该年级+科目下还没有题目<br>请先去题目管理添加</div>';
+  document.getElementById('selcount').textContent=editPart._sel.filter(id=>pool.some(q=>q.id===id)).length+'/10';
+}
+function qPickRow(q){
+  const on=editPart._sel.includes(q.id);
+  return `<div class="item tap" onclick="togglePick('${q.id}')" style="border-color:${on?'var(--bamboo)':'var(--line)'};background:${on?'var(--bamboo-light)':'#fff'}">
+    <div class="row" style="gap:10px"><span style="width:22px;height:22px;border-radius:6px;border:2px solid ${on?'var(--bamboo)':'var(--line)'};background:${on?'var(--bamboo)':'#fff'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">${on?'✓':''}</span>
+    <span style="font-size:14px">${q.question}</span></div></div>`;
+}
+function togglePick(id){
+  const pool=partPool();
+  const selInPool=editPart._sel.filter(x=>pool.some(q=>q.id===x));
+  const i=editPart._sel.indexOf(id);
+  if(i>=0)editPart._sel.splice(i,1);
+  else{if(selInPool.length>=10){toast('每个 Part 只能有 10 题');return}editPart._sel.push(id)}
+  refreshPick();
+}
+function savePart(id){
+  const name=document.getElementById('p_name').value.trim();
+  const grade=document.getElementById('p_grade').value, subject=document.getElementById('p_subject').value;
+  const pool=partPool();
+  const sel=editPart._sel.filter(x=>pool.some(q=>q.id===x)); // only questions from chosen grade+subject
+  if(!name){toast('请输入 Part 名称');return}
+  if(sel.length!==10){toast('请在该年级+科目下正好选择 10 道题');return}
+  if(id){const p=DB.parts.find(x=>x.id===id);p.name=name;p.grade=grade;p.subject=subject;p.questionIds=[...sel]}
+  else{DB.parts.push({id:uid(),name,grade,subject,questionIds:[...sel],createdAt:today()})}
+  save();tParts();
+}
+function delPart(id){confirmBox('确定删除这个 Part？',()=>{DB.parts=DB.parts.filter(x=>x.id!==id);save();tParts();})}
+
+/* ---- Rewards ---- */
+function tRewards(){
+  const all=allRedemptions();
+  const pending=all.filter(r=>r.status==='pending').length;
+  app.innerHTML=`<div class="screen active">${tHeader('奖励管理')}<div class="scroll">
+    <button class="btn btn-primary" style="margin-bottom:14px" onclick="editReward()">+ 添加小礼物</button>
+    ${DB.rewards.map(r=>`<div class="item">
+      <div class="row between"><b>${r.name}</b><span class="chip" style="background:${r.isActive?'var(--bamboo-light)':'#eee'};color:${r.isActive?'var(--bamboo-deep)':'var(--muted)'}">${r.isActive?'已上架':'已下架'}</span></div>
+      <div class="muted" style="font-size:13px;margin:6px 0">${r.pointsCost} 积分 · ${r.stock>0?'库存 '+r.stock:'不限量'} · 已兑 ${all.filter(x=>x.itemName===r.name).length}</div>
+      <div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm" onclick="editReward('${r.id}')">编辑</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleReward('${r.id}')">${r.isActive?'下架':'上架'}</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--wrong)" onclick="delReward('${r.id}')">删除</button></div>
+    </div>`).join('')||'<div class="empty">还没有奖励</div>'}
+    <hr>
+    <div class="row between" style="margin-bottom:10px"><b>兑换记录</b>${pending?`<span class="chip" style="background:var(--flame-soft);color:var(--flame)">${pending} 待处理</span>`:''}</div>
+    <input id="rsearch" placeholder="🔍 搜索兑换码 / 姓名…" oninput="tRewards._f=this.value;renderRedeems()" value="${tRewards._f||''}">
+    <div id="redeems"></div>
+    </div></div>`;
+  renderRedeems();
+}
+function renderRedeems(){
+  const f=(tRewards._f||'').trim().toUpperCase();
+  const list=allRedemptions().filter(r=>!f||r.redemptionCode.toUpperCase().includes(f)||(r._student.realName||'').toUpperCase().includes(f)||(r._student.nickname||'').toUpperCase().includes(f));
+  document.getElementById('redeems').innerHTML=list.length?list.map(r=>`<div class="item">
+    <div class="row between"><b>${r.itemName}</b><span class="status-tag ${r.status}">${r.status==='pending'?'待领取':'已领取'}</span></div>
+    <div class="muted" style="font-size:12px;margin-top:4px">${r._student.grade} · ${studentLabel(r._student)} · ${fmtDate(r.redemptionDate)}</div>
+    <div style="font-family:monospace;font-size:13px;color:var(--bamboo-deep);margin-top:2px">${r.redemptionCode}</div>
+    ${r.status==='pending'?`<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="markClaimed('${r._student.id}','${r.id}')">标记已领取</button>`:''}
+  </div>`).join(''):'<div class="empty" style="padding:20px">暂无兑换记录</div>';
+}
+function markClaimed(studentId,id){
+  const stu=DB.students.find(s=>s.id===studentId); if(!stu)return;
+  const r=stu.redemptions.find(x=>x.id===id); if(!r)return;
+  r.status='claimed';save();renderRedeems();toast('已标记领取 ✅');
+}
+function editReward(id){
+  const r=id?DB.rewards.find(x=>x.id===id):{name:'',pointsCost:30,stock:0,isActive:true};
+  openModal(`<h3>${id?'编辑':'添加'}小礼物</h3>
+    <label class="fld">物品名称</label><input id="r_name" value="${(r.name||'').replace(/"/g,'&quot;')}" placeholder="如：免作业卡">
+    <label class="fld">所需积分</label><input id="r_cost" type="number" value="${r.pointsCost}">
+    <label class="fld">库存数量（0 = 不限量）</label><input id="r_stock" type="number" value="${r.stock}">
+    <div class="modal-foot row" style="gap:10px"><button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveReward('${id||''}')">保存</button></div>`);
+}
+function saveReward(id){
+  const name=document.getElementById('r_name').value.trim();
+  const cost=+document.getElementById('r_cost').value, stock=+document.getElementById('r_stock').value;
+  if(!name||cost<=0){toast('请填写名称与积分');return}
+  if(id){Object.assign(DB.rewards.find(x=>x.id===id),{name,pointsCost:cost,stock})}
+  else{DB.rewards.push({id:uid(),name,pointsCost:cost,stock,isActive:true,createdAt:today()})}
+  save();closeModal();tRewards();
+}
+function toggleReward(id){const r=DB.rewards.find(x=>x.id===id);r.isActive=!r.isActive;save();tRewards()}
+function delReward(id){confirmBox('确定删除这个奖励？',()=>{DB.rewards=DB.rewards.filter(x=>x.id!==id);save();tRewards()})}
+
+/* ---- Badge management ---- */
+const BADGE_TYPES={streak:'连续打卡天数',weekStreak:'本周连续天数',points:'累计积分',parts:'完成 Part 数'};
+function badgeRule(b){
+  const t=BADGE_TYPES[b.type]||b.type;
+  if(b.type==='parts'&&b.subject) return `完成 ${b.target} 个「${b.subject}」Part`;
+  if(b.type==='parts') return `完成 ${b.target} 个 Part（全部科目）`;
+  if(b.type==='streak') return `连续打卡满 ${b.target} 天`;
+  if(b.type==='weekStreak') return `本周连续满 ${b.target} 天`;
+  if(b.type==='points') return `累计积分满 ${b.target} 分`;
+  return `${t} ≥ ${b.target}`;
+}
+function tBadges(){
+  const list=DB.settings.badges||[];
+  app.innerHTML=`<div class="screen active">${tHeader('成就徽章')}<div class="scroll">
+    <button class="btn btn-primary" style="margin-bottom:14px" onclick="editBadge()">+ 添加徽章</button>
+    <div class="muted" style="font-size:13px;margin-bottom:12px">学生达到条件会自动点亮徽章，出现在「我的」页面。</div>
+    ${list.length?list.map(b=>`<div class="item">
+      <div class="row" style="gap:12px">
+        <div style="width:46px;height:46px;border-radius:50%;background:var(--bamboo-light);display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid var(--bamboo)">${b.icon}</div>
+        <div style="flex:1"><b>${b.name}</b><div class="muted" style="font-size:13px;margin-top:2px">${badgeRule(b)}</div></div>
+      </div>
+      <div class="row" style="gap:8px;margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="editBadge('${b.id}')">编辑</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--wrong)" onclick="delBadge('${b.id}')">删除</button></div>
+    </div>`).join(''):'<div class="empty">还没有徽章，点上方按钮添加</div>'}
+    </div></div>`;
+}
+const EMOJI_CHOICES=['🏅','🥇','🎖️','👑','🌸','🔥','💯','⭐','🚀','🧠','🔢','📖','🔤','🐼','🦸','🌟','💎','🏆'];
+function editBadge(id){
+  const ss=DB.settings.subjects;
+  const b=id?DB.settings.badges.find(x=>x.id===id):{icon:'🏅',name:'',type:'parts',target:100,subject:''};
+  editBadge._icon=b.icon;
+  editBadge._type=b.type;
+  openModal(`<h3>${id?'编辑':'添加'}徽章</h3>
+    <label class="fld">图标</label>
+    <div id="emojiRow" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+      ${EMOJI_CHOICES.map(e=>`<div class="tap" data-e="${e}" onclick="pickEmoji('${e}')" style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid ${b.icon===e?'var(--bamboo)':'var(--line)'};background:${b.icon===e?'var(--bamboo-light)':'#fff'}">${e}</div>`).join('')}
+    </div>
+    <label class="fld">徽章名称</label><input id="bd_name" value="${(b.name||'').replace(/"/g,'&quot;')}" placeholder="如：数学小天才">
+    <label class="fld">达成条件</label>
+    <select id="bd_type" onchange="editBadge._type=this.value;toggleSubjectField()">
+      ${Object.entries(BADGE_TYPES).map(([k,v])=>`<option value="${k}" ${b.type===k?'selected':''}>${v}</option>`).join('')}
+    </select>
+    <div id="subjectField" style="display:${b.type==='parts'?'block':'none'}">
+      <label class="fld">科目（选“全部”就是所有科目合计）</label>
+      <select id="bd_subject"><option value="">全部科目</option>${ss.map(x=>`<option ${b.subject===x?'selected':''}>${x}</option>`).join('')}</select>
+    </div>
+    <label class="fld">目标数值</label><input id="bd_target" type="number" value="${b.target}" placeholder="如：100">
+    <div class="modal-foot row" style="gap:10px"><button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveBadge('${id||''}')">保存</button></div>`);
+}
+function pickEmoji(e){editBadge._icon=e;
+  document.querySelectorAll('#emojiRow [data-e]').forEach(el=>{
+    const on=el.dataset.e===e;el.style.border='2px solid '+(on?'var(--bamboo)':'var(--line)');el.style.background=on?'var(--bamboo-light)':'#fff';
+  });
+}
+function toggleSubjectField(){document.getElementById('subjectField').style.display=editBadge._type==='parts'?'block':'none';}
+function saveBadge(id){
+  const name=document.getElementById('bd_name').value.trim();
+  const type=document.getElementById('bd_type').value;
+  const target=+document.getElementById('bd_target').value;
+  const subject=type==='parts'?document.getElementById('bd_subject').value:'';
+  if(!name){toast('请输入徽章名称');return}
+  if(!target||target<=0){toast('目标数值要大于 0');return}
+  const data={icon:editBadge._icon||'🏅',name,type,target,subject};
+  if(id){Object.assign(DB.settings.badges.find(x=>x.id===id),data)}
+  else{DB.settings.badges.push({id:uid(),...data})}
+  save();closeModal();tBadges();
+}
+function delBadge(id){const b=DB.settings.badges.find(x=>x.id===id);confirmBox(`确定删除徽章「${b.name}」？`,()=>{DB.settings.badges=DB.settings.badges.filter(x=>x.id!==id);save();tBadges();})}
+
+/* ---- Progress ---- */
+function tProgress(){
+  const id=tProgress._id;
+  if(!id){ // no student selected → show picker list grouped by grade filter
+    const gg=DB.settings.grades, g=tProgress._g||'';
+    const list=DB.students.filter(s=>!g||s.grade===g);
+    app.innerHTML=`<div class="screen active">${tHeader('学生进度')}<div class="scroll">
+      <select id="pfg" onchange="tProgress._g=this.value;tProgress()" style="margin-bottom:12px">
+        <option value="">全部年级（${DB.students.length}）</option>
+        ${gg.map(x=>`<option ${g===x?'selected':''}>${x}（${DB.students.filter(s=>s.grade===x).length}）</option>`).join('')}
+      </select>
+      ${list.length?list.map(s=>`<div class="item tap" onclick="tProgress._id='${s.id}';tProgress()">
+        <div class="row between"><b>${studentLabel(s)}</b><span class="chip">${s.grade}</span></div>
+        <div class="muted" style="font-size:13px;margin-top:4px">⭐ ${s.points} · 🔥 ${s.streak} 天 · 累计 ${s.totalParts} Part</div>
+      </div>`).join(''):'<div class="empty">还没有学生账号</div>'}
+      </div></div>`;
+    return;
+  }
+  const s=DB.students.find(x=>x.id===id);
+  if(!s){tProgress._id=null;return tProgress();}
+  app.innerHTML=`<div class="screen active">
+    <div class="topbar"><button class="back" onclick="tProgress._id=null;tProgress()">‹</button><h3>学生进度</h3></div>
+    <div class="scroll">
+    <div class="card">
+      <div class="row between"><b style="font-size:17px">${studentLabel(s)}</b><span class="pill">🔥 ${s.streak} 天</span></div>
+      <div class="muted" style="font-size:13px;margin-top:4px">${s.grade} · 账号 ${s.account}</div>
+      <div class="grid2" style="margin-top:12px">
+        <div class="stat"><div class="l">总积分</div><div class="v">${s.points}</div></div>
+        <div class="stat"><div class="l">本周连续</div><div class="v">${s.weekStreak||0}/7</div></div>
+        <div class="stat"><div class="l">累计 Part</div><div class="v">${s.totalParts}</div></div>
+        <div class="stat"><div class="l">兑换次数</div><div class="v">${s.redemptions.length}</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>近期打卡</b>
+      ${calendarView(s)}
+    </div>
+    <div class="card">
+      <b>打卡明细</b>
+      ${s.checkins.slice().reverse().slice(0,12).map(c=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)">
+        <span>${fmtDate(c.date)}</span><span class="muted">${c.usedFreeze?'❄️ 冻结石':'✅ '+c.score+'/10'}</span></div>`).join('')||'<div class="empty" style="padding:16px">暂无打卡</div>'}
+    </div>
+    </div></div>`;
+}
+function calendarView(s){
+  const days=[];const set=new Set(s.checkins.map(c=>c.date));
+  for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const str=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');days.push([d.getDate(),set.has(str)])}
+  return `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px">${days.map(([n,on])=>`<div style="aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:${on?'var(--flame)':'#f0ede3'};color:${on?'#fff':'var(--muted)'}">${on?'🔥':n}</div>`).join('')}</div>`;
+}
+
+/* ---- Settings ---- */
+function tSettings(){
+  const s=DB.settings;
+  app.innerHTML=`<div class="screen active">${tHeader('设置')}<div class="scroll">
+    <div class="card">
+      <label class="fld">老师密码</label><input id="set_pw" value="${s.teacherPassword}">
+      <label class="fld">每日最低完成 Part 数</label><input id="set_daily" type="number" value="${s.dailyPartRequirement}">
+      <label class="fld">每周目标 Part 数</label><input id="set_weekly" type="number" value="${s.weeklyPartGoal}">
+      <label class="fld">冻结石积分价格</label><input id="set_freeze" type="number" value="${s.freezeStoneCost}">
+      <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+    </div>
+    <div class="card">
+      <b>📚 年级列表</b>
+      <div id="gradeList" style="margin-top:10px">${tagList(s.grades,'grade')}</div>
+      <div class="row" style="gap:8px;margin-top:6px"><input id="newGrade" placeholder="添加年级，如：初一" style="margin:0"><button class="btn btn-primary btn-sm" onclick="addTag('grade')">添加</button></div>
+    </div>
+    <div class="card">
+      <b>🔖 科目列表</b>
+      <div id="subjectList" style="margin-top:10px">${tagList(s.subjects,'subject')}</div>
+      <div class="row" style="gap:8px;margin-top:6px"><input id="newSubject" placeholder="添加科目，如：科学" style="margin:0"><button class="btn btn-primary btn-sm" onclick="addTag('subject')">添加</button></div>
+    </div>
+    <div class="card">
+      <b style="color:var(--wrong)">危险操作</b>
+      <button class="btn btn-ghost" style="margin-top:10px;color:var(--wrong)" onclick="resetStudent()">重置学生进度</button>
+      <button class="btn btn-ghost" style="margin-top:10px" onclick="exportData()">导出数据</button>
+    </div>
+    </div></div>`;
+}
+function tagList(arr,kind){
+  return arr.length?arr.map(v=>`<span class="chip tap" style="margin:0 8px 8px 0;display:inline-flex;gap:6px" onclick="delTag('${kind}','${v}')">${v} ✕</span>`).join(''):'<span class="muted" style="font-size:13px">暂无</span>';
+}
+function addTag(kind){
+  const key=kind==='grade'?'grades':'subjects';
+  const inp=document.getElementById(kind==='grade'?'newGrade':'newSubject');
+  const v=inp.value.trim();
+  if(!v)return;
+  if(DB.settings[key].includes(v)){toast('已存在');return}
+  DB.settings[key].push(v); save(); tSettings();
+}
+function delTag(kind,v){
+  const key=kind==='grade'?'grades':'subjects';
+  const field=kind; // 'grade' or 'subject'
+  const usedByQ=DB.questions.some(q=>q[field]===v), usedByP=DB.parts.some(p=>p[field]===v);
+  const warn=(usedByQ||usedByP)?`\n有题目或 Part 正在使用「${v}」，删除后它们会变成"未分类"。`:'';
+  confirmBox(`确定删除「${v}」？`+warn,()=>{
+    DB.settings[key]=DB.settings[key].filter(x=>x!==v);
+    save(); tSettings();
+  });
+}
+function saveSettings(){
+  const g=x=>document.getElementById(x).value;
+  DB.settings.teacherPassword=g('set_pw')||'123123';
+  DB.settings.dailyPartRequirement=+g('set_daily')||1;
+  DB.settings.weeklyPartGoal=+g('set_weekly')||5;
+  DB.settings.freezeStoneCost=+g('set_freeze')||30;
+  save();toast('设置已保存 ✅');
+}
+function resetStudent(){confirmBox('确定重置所有学生的进度？会清空全部学生的积分、打卡、兑换记录（保留账号和昵称）。',()=>{
+  confirmBox('再次确认：真的要重置所有人吗？',()=>{
+    DB.students.forEach(s=>Object.assign(s,{points:0,streak:0,weekStreak:0,lastCompleteDate:'',freezeStones:0,totalParts:0,checkins:[],redemptions:[],badges:[]}));
+    save();toast('已重置所有学生进度');teacherHome();
+  });
+})}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='pxxs-data.json';a.click();URL.revokeObjectURL(url);
+  toast('数据已导出');
+}
+
+/* ============ HELPERS ============ */
+function openModal(html){document.getElementById('modalBody').innerHTML=html;document.getElementById('mask').classList.add('show')}
+function closeModal(){document.getElementById('mask').classList.remove('show')}
+document.getElementById('mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal()});
+function confirmBox(msg,onYes){
+  window.__yes=onYes;
+  openModal(`<h3 style="font-size:17px">${msg}</h3><div class="row" style="gap:10px">
+    <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-flame" onclick="closeModal();window.__yes&&window.__yes()">确定</button></div>`);
+}
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800)}
+function confetti(){
+  const colors=['#3fa34d','#ff7a2f','#ffb23e','#8fd3ff','#1f1f1f'];
+  for(let i=0;i<40;i++){const c=document.createElement('div');c.className='confetti';
+    c.style.left=Math.random()*100+'vw';c.style.background=colors[i%colors.length];
+    c.style.animation=`fall ${1+Math.random()*1.2}s ${Math.random()*.3}s linear forwards`;
+    document.body.appendChild(c);setTimeout(()=>c.remove(),2600)}
+}
+
+// auto-login if a student chose "remember me" on this device
+(function autoLogin(){
+  let rid=null; try{rid=localStorage.getItem(REMEMBER_KEY)}catch(e){}
+  if(rid){
+    const stu=DB.students.find(s=>s.id===rid);
+    if(stu){
+      SESSION.studentId=stu.id;
+      checkWeek(); reconcileStreak();
+      currentTab='home';
+      if(!stu.nickname){ renderNickname(); return; }
+      render('student'); return;
+    }
+    try{localStorage.removeItem(REMEMBER_KEY)}catch(e){} // stale id, clear it
+  }
+  render('splash');
+})();
+</script>
+</body>
+</html>
